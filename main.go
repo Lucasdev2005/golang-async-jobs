@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/Lucasdev2005/golang-async-jobs/internal/controller"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/database"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/enums"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/rabbitMq"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/types"
@@ -12,6 +13,7 @@ func main() {
 	rabbitMq.ConnectionRabbitMq()
 	rabbitMq.InitTransfers()
 	r := gin.Default()
+	database.Connect()
 
 	r.POST("api/usuario/:id/transfer", func(ctx *gin.Context) {
 		processRequest(ctx, controller.CreateTransfer)
