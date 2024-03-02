@@ -12,8 +12,8 @@ import (
 func main() {
 	rabbitMq.ConnectionRabbitMq()
 	rabbitMq.InitTransfers()
-	r := gin.Default()
 	database.Connect()
+	r := gin.Default()
 
 	r.POST("api/usuario/:id/transfer", func(ctx *gin.Context) {
 		processRequest(ctx, controller.CreateTransfer)
