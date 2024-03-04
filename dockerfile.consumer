@@ -1,0 +1,8 @@
+FROM golang:1.21.7 as builder
+WORKDIR /app
+COPY . .
+RUN go build -o consumer
+
+FROM alpine:3.18 as binary
+COPY --from=builder /app/consumer .
+CMD [ "./consumer" ]

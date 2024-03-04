@@ -3,6 +3,9 @@ version: '3'
 services:
   rabbitmq:
     image: "rabbitmq:management-alpine"
+    hostname: rabbitmq
+    networks:
+      - mynetwork
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
       RABBITMQ_DEFAULT_USER: "rabbitmq"
@@ -11,10 +14,18 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
   db:
     image: postgres:16.2
     hostname: db
+    networks:
+      - mynetwork
     ports:
       - "5432:5432"
     volumes:
@@ -29,3 +40,25 @@ services:
       timeout: 5s
       retries: 20
       start_period: 10s
+
+  publisher:
+    networks:
+      - mynetwork
+    build: 
+      dockerfile: ./dockerfile.publisher
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_PASSWORD=asyncjobs@123
+      - DB_USER=asyncjobs
+      - DB_NAME=asyncjobs
+      - DB_PORT=5432
+      - DB_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+networks:
+  mynetwork:
