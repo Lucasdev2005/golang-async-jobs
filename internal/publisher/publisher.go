@@ -19,7 +19,7 @@ func main() {
 	r := gin.Default()
 
 	r.POST("api/usuario/:id/transfer", func(ctx *gin.Context) {
-		processRequest(ctx, controller.CreateTransfer)
+		processRequest(ctx, controller.PublishTransfer)
 	})
 	r.Run()
 }

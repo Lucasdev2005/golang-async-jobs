@@ -12,7 +12,7 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-func CreateTransfer(request types.Request) (interface{}, *types.Error) {
+func PublishTransfer(request types.Request) (interface{}, *types.Error) {
 
 	var (
 		clientId    = request.GetParam("id")
