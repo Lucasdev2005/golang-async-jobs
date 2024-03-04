@@ -1,6 +1,6 @@
 module github.com/Lucasdev2005/golang-async-jobs
 
-go 1.21.6
+go 1.21
 
 require (
 	github.com/gin-gonic/gin v1.9.1
