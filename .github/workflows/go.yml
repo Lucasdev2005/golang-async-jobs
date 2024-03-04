@@ -19,5 +19,5 @@ jobs:
       with:
         go-version: '1.20'
 
-    - name: Build publisher
+    - name: Build publisher 
       run: go build -v ./internal/publisher
