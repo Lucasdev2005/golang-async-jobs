@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/database"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/enums"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/rabbitMq"
@@ -18,6 +20,9 @@ func main() {
 
 	r := gin.Default()
 
+	s := 1
+
+	fmt.Println(s)
 	r.POST("api/usuario/:id/transfer", func(ctx *gin.Context) {
 		processRequest(ctx, controller.PublishTransfer)
 	})
