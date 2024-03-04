@@ -4,8 +4,8 @@ import (
 	"time"
 )
 
-type User struct {
-	UserID         int
+type Client struct {
+	ClientID       int
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      *time.Time
@@ -13,11 +13,11 @@ type User struct {
 	AccountBalance int
 }
 
-func (u User) Exists() bool {
-	return u.UserID != 0
+func (u Client) Exists() bool {
+	return u.ClientID != 0
 }
 
-func (u User) HaveLimitForTransaction(transactionType string, transactionValue int) (int, bool) {
+func (u Client) HaveLimitForTransaction(transactionType string, transactionValue int) (int, bool) {
 	var balance int
 
 	if transactionType == debit {

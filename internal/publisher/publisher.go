@@ -1,18 +1,21 @@
 package main
 
 import (
-	"github.com/Lucasdev2005/golang-async-jobs/internal/controller"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/database"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/enums"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/rabbitMq"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/types"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/core/database"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/core/enums"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/core/rabbitMq"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/core/types"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/publisher/controller"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	rabbitMq.ConnectionRabbitMq()
 	rabbitMq.InitTransfers()
+
 	database.Connect()
+	defer database.Close()
+
 	r := gin.Default()
 
 	r.POST("api/usuario/:id/transfer", func(ctx *gin.Context) {

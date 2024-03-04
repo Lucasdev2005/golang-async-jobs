@@ -25,7 +25,7 @@ type Transaction struct {
 	TransactionValue       int        `json:"transaction_value" validate:"required"`
 	TransactionType        string     `json:"transaction_type" validate:"required,validTypeTransaction,len=1"`
 	TransactionDescription string     `json:"transaction_description" validate:"required,min=10"`
-	TransactionUserID      int        `json:"transaction_user_id" validate:"required"`
+	TransactionClientID    int        `json:"transaction_client_id" validate:"required"`
 }
 
 func (t Transaction) IsCredit() bool {

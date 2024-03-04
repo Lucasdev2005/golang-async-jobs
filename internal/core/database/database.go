@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
@@ -13,7 +15,6 @@ var Connection *pgxpool.Pool
 
 func Connect() error {
 	var err error
-	fmt.Println(getUrl())
 	Connection, err = pgxpool.Connect(context.Background(), getUrl())
 
 	return err
@@ -27,7 +28,9 @@ func Close() {
 }
 
 func getUrl() string {
-	godotenv.Load()
+	_, b, _, _ := runtime.Caller(0)
+	var ProjectRootPath = filepath.Join(filepath.Dir(b), "../../../")
+	godotenv.Load(ProjectRootPath + "/.env")
 
 	var (
 		dbPort     = os.Getenv("DB_PORT")
