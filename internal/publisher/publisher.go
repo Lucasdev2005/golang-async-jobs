@@ -8,7 +8,7 @@ import (
 	"github.com/Lucasdev2005/golang-async-jobs/internal/publisher/controller"
 	"github.com/gin-gonic/gin"
 )
-
+ 
 func main() {
 	rabbitMq.ConnectionRabbitMq()
 	rabbitMq.InitTransfers()
