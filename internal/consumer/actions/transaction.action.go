@@ -6,13 +6,13 @@ import (
 	"fmt"
 
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/database"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/core/types"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
 )
 
 func InsertTransaction(body []byte, ctx context.Context) error {
 	var (
 		data struct {
-			Transaction types.Transaction
+			Transaction entity.Transaction
 			NewBalance  int
 		}
 	)

@@ -7,7 +7,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Lucasdev2005/golang-async-jobs/internal/core/types"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
+	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
 )
 
@@ -24,6 +25,8 @@ func failOnError(err error, msg string) {
 }
 
 func ConnectionRabbitMq() {
+	godotenv.Load()
+
 	conn, err := amqp.Dial(os.Getenv("RABBITMQ_URL"))
 	failOnError(err, "Failed to connect to RabbitMQ")
 	MqConnection = conn
@@ -43,9 +46,9 @@ func InitTransfers() {
 	)
 }
 
-func PublishTransaction(transaction types.Transaction, newBalance int) {
+func PublishTransaction(transaction entity.Transaction, newBalance int) {
 	data := struct {
-		Transaction types.Transaction
+		Transaction entity.Transaction
 		NewBalance  int
 	}{
 		Transaction: transaction,
