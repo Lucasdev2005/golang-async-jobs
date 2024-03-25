@@ -10,6 +10,6 @@ a simple example project, of a Go api implementation with RabbitMq. I divided th
  2) Run ``` go run internal/consumer/consumer.go ``` to run Consumers.
  2) Run ``` go run internal/publisher/publisher.go ``` to run Publishers.
 
- # Load Test
+# Load Test
  1) Make sure your machine have docker and docker compose.
  2) Run ``` sh run-load-test.sh ```
