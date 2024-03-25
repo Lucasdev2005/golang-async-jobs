@@ -111,6 +111,7 @@ services:
       - ./test/load-test/dashboards:/var/lib/grafana/dashboards
       - ./test/load-test/grafana-dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
       - ./test/load-test/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+
   influxdb:
     image: influxdb:1.8
     hostname: influxdb
