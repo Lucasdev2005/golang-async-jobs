@@ -5,7 +5,8 @@ a simple example project, of a Go api implementation with RabbitMQ. I divided th
  1) Make sure your machine have docker and docker compose.
  2) Run ``` docker compose up -d ```
 
-# Setup ambient from devs
+# Prepare ambient from devs
+This will prepare your environment with all the necessary dependencies for development. (RabbitMQ, PostgresSQL)
  1) Run ``` docker compose -f docker-compose-develop.yaml up -d ``` to setup Database and rabbitMQ.
  2) Run ``` go run internal/consumer/consumer.go ``` to run Consumers.
  2) Run ``` go run internal/publisher/publisher.go ``` to run Publishers.
