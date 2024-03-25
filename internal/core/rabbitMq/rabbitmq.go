@@ -1,6 +1,7 @@
 package rabbitMq
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -22,7 +23,7 @@ func failOnError(err error, msg string) {
 }
 
 func ConnectionRabbitMq() {
-	conn, err := amqp.Dial("amqp://rabbitmq:rabbitmq@localhost:5672/")
+	conn, err := amqp.Dial("amqp://rabbitmq:rabbitmq@rabbitmq:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	MqConnection = conn
 }
@@ -63,7 +64,7 @@ func PublishTransaction(transaction types.Transaction, newBalance int) {
 	failOnError(err, "Failed to publish a message")
 }
 
-func ConsumeMessages(worker func(body []byte)) {
+func ConsumeMessages(worker func(body []byte, context context.Context) error) {
 	TransfersChannel.Qos(1, 0, false)
 	msgs, err := TransfersChannel.Consume(
 		TransfersQueue.Name,
@@ -78,9 +79,10 @@ func ConsumeMessages(worker func(body []byte)) {
 	fmt.Println("Waiting messages...")
 
 	forever := make(chan bool)
-	func() {
+	go func() {
 		for d := range msgs {
-			go worker(d.Body)
+			log.Println("[ConsumeMessages] d:", d)
+			worker(d.Body, context.Background())
 		}
 	}()
 

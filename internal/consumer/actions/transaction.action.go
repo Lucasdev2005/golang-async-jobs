@@ -9,7 +9,7 @@ import (
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/types"
 )
 
-func InsertTransaction(body []byte) {
+func InsertTransaction(body []byte, ctx context.Context) error {
 	var (
 		data struct {
 			Transaction types.Transaction
@@ -18,16 +18,18 @@ func InsertTransaction(body []byte) {
 	)
 	json.Unmarshal(body, &data)
 
+	fmt.Println("[InsertTransaction] data: ", data)
 	transaction := data.Transaction
 	newBalance := data.NewBalance
 
 	database.Connect()
+	defer database.Close()
 
-	_, errTransacion := database.Connection.Query(
-		context.Background(),
+	_, errTransacion := database.Connection.Exec(
+		ctx,
 		`INSERT INTO transaction (
 			transaction_value,
-			transaction_type, 
+			transaction_type,
 			transaction_description,
 			transaction_client_id
 		)
@@ -38,12 +40,12 @@ func InsertTransaction(body []byte) {
 		transaction.TransactionClientID,
 	)
 
-	errUpdateBalance := database.Connection.QueryRow(
-		context.Background(),
+	database.Connection.Exec(
+		ctx,
 		"UPDATE client SET client_account_balance = $1 WHERE client_id = $2",
 		newBalance,
 		transaction.TransactionClientID,
-	).Scan()
+	)
 
 	fmt.Println(
 		"[InsertTransaction]",
@@ -52,14 +54,5 @@ func InsertTransaction(body []byte) {
 		"Saved on Database.",
 	)
 
-	database.Close()
-	resolveErr(errTransacion)
-	resolveErr(errUpdateBalance)
-
-}
-
-func resolveErr(err error) {
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	return errTransacion
 }

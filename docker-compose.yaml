@@ -15,7 +15,7 @@ services:
       - "15672:15672"
       - "5672:5672"
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      test: [ "CMD", "nc", "-z", "rabbitmq", "5672" ]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -48,6 +48,21 @@ services:
       dockerfile: ./dockerfile.publisher
     ports:
       - "8080:8080"
+    environment:
+      - DB_PASSWORD=asyncjobs@123
+      - DB_USER=asyncjobs
+      - DB_NAME=asyncjobs
+      - DB_PORT=5432
+      - DB_HOST=db
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  consumer:
+    networks:
+      - mynetwork
+    build: 
+      dockerfile: ./dockerfile.consumer
     environment:
       - DB_PASSWORD=asyncjobs@123
       - DB_USER=asyncjobs
