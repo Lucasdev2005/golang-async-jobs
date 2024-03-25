@@ -21,3 +21,6 @@ jobs:
 
     - name: Build publisher 
       run: go build -v ./internal/publisher
+
+    - name: Build Consumer
+      run: go build -v ./internal/consumer
