@@ -45,7 +45,9 @@ services:
     networks:
       - mynetwork
     build: 
-      dockerfile: ./dockerfile.publisher
+      dockerfile: ./Dockerfile
+      args:
+        - PATH_DIR=publisher
     ports:
       - "8080:8080"
     environment:
@@ -54,6 +56,7 @@ services:
       - DB_NAME=asyncjobs
       - DB_PORT=5432
       - DB_HOST=db
+      - RABBITMQ_URL=amqp://rabbitmq:rabbitmq@rabbitmq:5672/
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -62,8 +65,11 @@ services:
     networks:
       - mynetwork
     build: 
-      dockerfile: ./dockerfile.consumer
+      dockerfile: ./Dockerfile
+      args:
+        - PATH_DIR=consumer
     environment:
+      - RABBITMQ_URL=amqp://rabbitmq:rabbitmq@rabbitmq:5672/
       - DB_PASSWORD=asyncjobs@123
       - DB_USER=asyncjobs
       - DB_NAME=asyncjobs

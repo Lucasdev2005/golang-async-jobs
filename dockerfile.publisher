@@ -1,8 +1,0 @@
-FROM golang:1.21.7 as builder
-WORKDIR /app
-COPY . .
-RUN go build -o publisher ./internal/publisher
-
-FROM golang:1.21.7 as binary
-COPY --from=builder /app/publisher .
-CMD ["./publisher"]

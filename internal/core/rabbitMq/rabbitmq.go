@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/types"
 	"github.com/streadway/amqp"
@@ -23,7 +24,7 @@ func failOnError(err error, msg string) {
 }
 
 func ConnectionRabbitMq() {
-	conn, err := amqp.Dial("amqp://rabbitmq:rabbitmq@rabbitmq:5672/")
+	conn, err := amqp.Dial(os.Getenv("RABBITMQ_URL"))
 	failOnError(err, "Failed to connect to RabbitMQ")
 	MqConnection = conn
 }

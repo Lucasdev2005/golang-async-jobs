@@ -18,7 +18,6 @@ func InsertTransaction(body []byte, ctx context.Context) error {
 	)
 	json.Unmarshal(body, &data)
 
-	fmt.Println("[InsertTransaction] data: ", data)
 	transaction := data.Transaction
 	newBalance := data.NewBalance
 
