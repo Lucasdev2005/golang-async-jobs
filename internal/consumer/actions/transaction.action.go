@@ -3,7 +3,8 @@ package actions
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log/slog"
+	"strconv"
 
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/database"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
@@ -21,10 +22,20 @@ func InsertTransaction(body []byte, ctx context.Context) error {
 	transaction := data.Transaction
 	newBalance := data.NewBalance
 
-	database.Connect()
-	defer database.Close()
+	con, err := database.Connection.Acquire(ctx)
+	defer con.Release()
 
-	_, errTransacion := database.Connection.Exec(
+	if err != nil {
+		return err
+	}
+
+	tx, errTx := con.Begin(ctx)
+
+	if errTx != nil {
+		return errTx
+	}
+
+	_, errTransacion := tx.Exec(
 		ctx,
 		`INSERT INTO transaction (
 			transaction_value,
@@ -39,19 +50,30 @@ func InsertTransaction(body []byte, ctx context.Context) error {
 		transaction.TransactionClientID,
 	)
 
-	database.Connection.Exec(
+	_, errClient := tx.Exec(
 		ctx,
 		"UPDATE client SET client_account_balance = $1 WHERE client_id = $2",
 		newBalance,
 		transaction.TransactionClientID,
 	)
 
-	fmt.Println(
-		"[InsertTransaction]",
-		"Transaction with value", transaction.TransactionValue,
-		"from Client ", transaction.TransactionClientID,
-		"Saved on Database.",
-	)
+	if errTransacion != nil {
+		tx.Rollback(ctx)
+		return errTransacion
+	}
 
-	return errTransacion
+	if errClient != nil {
+		tx.Rollback(ctx)
+		return errClient
+	}
+
+	tx.Commit(ctx)
+
+	slog.Info(
+		"[InsertTransaction] " +
+			"Transaction with value: " + strconv.Itoa(transaction.TransactionValue) +
+			" from Client " + strconv.Itoa(transaction.TransactionClientID) +
+			" Saved on Database.",
+	)
+	return nil
 }

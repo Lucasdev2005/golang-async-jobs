@@ -21,9 +21,6 @@ func Connect() error {
 }
 
 func Close() {
-	if Connection == nil {
-		return
-	}
 	Connection.Close()
 }
 

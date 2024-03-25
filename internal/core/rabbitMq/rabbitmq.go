@@ -3,8 +3,8 @@ package rabbitMq
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
@@ -73,20 +73,22 @@ func ConsumeMessages(worker func(body []byte, context context.Context) error) {
 	msgs, err := TransfersChannel.Consume(
 		TransfersQueue.Name,
 		"",
-		true,
+		false,
 		false,
 		false,
 		false,
 		nil,
 	)
 	failOnError(err, "failed to register a consumer")
-	fmt.Println("Waiting messages...")
-
+	slog.Info("Wating messages...")
 	forever := make(chan bool)
+
 	go func() {
 		for d := range msgs {
-			log.Println("[ConsumeMessages] d:", d)
-			worker(d.Body, context.Background())
+			err := worker(d.Body, context.Background())
+			if err == nil {
+				d.Ack(true)
+			}
 		}
 	}()
 
