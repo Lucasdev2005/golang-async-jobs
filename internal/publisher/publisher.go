@@ -1,28 +1,25 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/database"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/enums"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/core/rabbitMq"
+	rabbitmq "github.com/Lucasdev2005/golang-async-jobs/internal/core/rabbitMq"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/publisher/controller"
+	"github.com/Lucasdev2005/golang-async-jobs/internal/publisher/repository"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	rabbitMq.ConnectionRabbitMq()
-	rabbitMq.InitTransfers()
-
-	database.Connect()
+	database := database.NewDatabase()
 	defer database.Close()
 
 	r := gin.Default()
 
-	s := 1
+	rabbitMq := rabbitmq.NewRabbitMq()
+	repository := repository.NewTransactionRepository(database.Con, rabbitMq)
+	controller := controller.NewTransactionCotroller(repository)
 
-	fmt.Println(s)
 	r.POST("api/usuario/:id/transfer", func(ctx *gin.Context) {
 		processRequest(ctx, controller.PublishTransfer)
 	})

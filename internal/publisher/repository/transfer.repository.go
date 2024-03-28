@@ -4,26 +4,32 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Lucasdev2005/golang-async-jobs/internal/core/database"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/core/rabbitMq"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type transactionRepository struct {
-	Create func(t entity.Transaction) error
+type RabbitMQ interface {
+	PublishTransaction(transaction entity.Transaction, newBalance int)
+	ConsumeMessages(worker func(body []byte, context context.Context) error)
 }
 
-func NewTransactionRepository() transactionRepository {
-	return transactionRepository{
-		Create: createTransaction,
+type TransactionRepository struct {
+	db       *pgxpool.Pool
+	rabbitMq RabbitMQ
+}
+
+func NewTransactionRepository(db *pgxpool.Pool, rabbitMq RabbitMQ) TransactionRepository {
+	return TransactionRepository{
+		db:       db,
+		rabbitMq: rabbitMq,
 	}
 }
 
-func createTransaction(transaction entity.Transaction) error {
+func (t TransactionRepository) CreateTransaction(transaction entity.Transaction) error {
 	var (
 		client entity.Client
 	)
-	database.Connection.QueryRow(
+	t.db.QueryRow(
 		context.Background(),
 		`
 			SELECT 
@@ -47,7 +53,7 @@ func createTransaction(transaction entity.Transaction) error {
 
 		if balance, ok := client.HaveLimitForTransaction(transaction.TransactionType, transaction.TransactionValue); ok {
 			client.AccountBalance = balance
-			defer rabbitMq.PublishTransaction(transaction, client.AccountBalance)
+			defer t.rabbitMq.PublishTransaction(transaction, client.AccountBalance)
 			return nil
 		} else {
 			return fmt.Errorf("user no have balance from this transaction")

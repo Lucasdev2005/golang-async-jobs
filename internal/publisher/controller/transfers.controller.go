@@ -6,12 +6,23 @@ import (
 
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/enums"
-	"github.com/Lucasdev2005/golang-async-jobs/internal/publisher/repository"
 )
 
-var transactionrepository = repository.NewTransactionRepository()
+func NewTransactionCotroller(repository TransactionRepository) TransactionController {
+	return TransactionController{
+		repository,
+	}
+}
 
-func PublishTransfer(request entity.Request) (interface{}, *entity.Error) {
+type TransactionRepository interface {
+	CreateTransaction(transaction entity.Transaction) error
+}
+
+type TransactionController struct {
+	repository TransactionRepository
+}
+
+func (t TransactionController) PublishTransfer(request entity.Request) (interface{}, *entity.Error) {
 
 	var (
 		clientId    = request.GetParam("id")
@@ -20,7 +31,7 @@ func PublishTransfer(request entity.Request) (interface{}, *entity.Error) {
 
 	request.Body(&transaction)
 	transaction.TransactionClientID, _ = strconv.Atoi(clientId)
-	errorOnSaveTransaction := transactionrepository.Create(transaction)
+	errorOnSaveTransaction := t.repository.CreateTransaction(transaction)
 
 	log.Println("[PublishTransfer] errorOnSaveTransaction: ", errorOnSaveTransaction)
 	if errorOnSaveTransaction != nil {

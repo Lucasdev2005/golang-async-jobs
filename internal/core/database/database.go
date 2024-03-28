@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -11,17 +12,22 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var Connection *pgxpool.Pool
-
-func Connect() error {
-	var err error
-	Connection, err = pgxpool.Connect(context.Background(), getUrl())
-
-	return err
+type database struct {
+	Con *pgxpool.Pool
 }
 
-func Close() {
-	Connection.Close()
+func NewDatabase() database {
+	con, err := pgxpool.Connect(context.Background(), getUrl())
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return database{con}
+}
+
+func (d database) Close() {
+	d.Con.Close()
 }
 
 func getUrl() string {

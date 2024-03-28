@@ -1,4 +1,4 @@
-package actions
+package action
 
 import (
 	"context"
@@ -6,11 +6,19 @@ import (
 	"log/slog"
 	"strconv"
 
-	"github.com/Lucasdev2005/golang-async-jobs/internal/core/database"
 	"github.com/Lucasdev2005/golang-async-jobs/internal/core/entity"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func InsertTransaction(body []byte, ctx context.Context) error {
+type action struct {
+	con *pgxpool.Pool
+}
+
+func NewAction(con *pgxpool.Pool) action {
+	return action{con}
+}
+
+func (a action) InsertTransaction(body []byte, ctx context.Context) error {
 	var (
 		data struct {
 			Transaction entity.Transaction
@@ -22,7 +30,7 @@ func InsertTransaction(body []byte, ctx context.Context) error {
 	transaction := data.Transaction
 	newBalance := data.NewBalance
 
-	con, err := database.Connection.Acquire(ctx)
+	con, err := a.con.Acquire(ctx)
 	defer con.Release()
 
 	if err != nil {

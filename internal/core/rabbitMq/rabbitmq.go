@@ -1,4 +1,4 @@
-package rabbitMq
+package rabbitmq
 
 import (
 	"context"
@@ -12,11 +12,11 @@ import (
 	"github.com/streadway/amqp"
 )
 
-var (
-	MqConnection     *amqp.Connection
-	TransfersChannel *amqp.Channel
-	TransfersQueue   amqp.Queue
-)
+type RabbitMq struct {
+	mqConnection     *amqp.Connection
+	transfersChannel *amqp.Channel
+	transfersQueue   amqp.Queue
+}
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -24,19 +24,16 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func ConnectionRabbitMq() {
+func NewRabbitMq() RabbitMq {
 	godotenv.Load()
 
 	conn, err := amqp.Dial(os.Getenv("RABBITMQ_URL"))
 	failOnError(err, "Failed to connect to RabbitMQ")
-	MqConnection = conn
-}
 
-func InitTransfers() {
-	c, _ := MqConnection.Channel()
-	TransfersChannel = c
+	channel, errChannel := conn.Channel()
+	failOnError(errChannel, "Failed to connect to RabbitMQ")
 
-	TransfersQueue, _ = TransfersChannel.QueueDeclare(
+	queue, errQueue := channel.QueueDeclare(
 		"transferencia",
 		false,
 		false,
@@ -44,9 +41,17 @@ func InitTransfers() {
 		false,
 		nil,
 	)
+
+	failOnError(errQueue, "Failed to connect to RabbitMQ")
+
+	return RabbitMq{
+		mqConnection:     conn,
+		transfersChannel: channel,
+		transfersQueue:   queue,
+	}
 }
 
-func PublishTransaction(transaction entity.Transaction, newBalance int) {
+func (r RabbitMq) PublishTransaction(transaction entity.Transaction, newBalance int) {
 	data := struct {
 		Transaction entity.Transaction
 		NewBalance  int
@@ -55,9 +60,9 @@ func PublishTransaction(transaction entity.Transaction, newBalance int) {
 		NewBalance:  newBalance,
 	}
 	body, _ := json.Marshal(data)
-	err := TransfersChannel.Publish(
+	err := r.transfersChannel.Publish(
 		"",
-		TransfersQueue.Name,
+		r.transfersQueue.Name,
 		false,
 		false,
 		amqp.Publishing{
@@ -68,10 +73,10 @@ func PublishTransaction(transaction entity.Transaction, newBalance int) {
 	failOnError(err, "Failed to publish a message")
 }
 
-func ConsumeMessages(worker func(body []byte, context context.Context) error) {
-	TransfersChannel.Qos(1, 0, false)
-	msgs, err := TransfersChannel.Consume(
-		TransfersQueue.Name,
+func (r RabbitMq) ConsumeMessages(worker func(body []byte, context context.Context) error) {
+	r.transfersChannel.Qos(1, 0, false)
+	msgs, err := r.transfersChannel.Consume(
+		r.transfersQueue.Name,
 		"",
 		false,
 		false,
