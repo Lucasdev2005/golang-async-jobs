@@ -48,7 +48,13 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Publish docker image from 'publisher'
-      run: docker push lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}}
+      run: | 
+        docker push lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}}
+        docker tag lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} lucssdev2005/publisher:latest
+        docker push lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} lucssdev2005/publisher:latest
 
     - name: Publish docker image from 'consumer'
-      run: docker push lucssdev2005/consumer:${{steps.generate_sha.outputs.sha}}
+      run: | 
+        docker push lucssdev2005/consumer:${{steps.generate_sha.outputs.sha}}
+        docker tag lucssdev2005/consumer:${{steps.generate_sha.outputs.sha}} lucssdev2005/consumer:latest
+        docker push lucssdev2005/consumer:latest
