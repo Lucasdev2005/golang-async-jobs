@@ -24,12 +24,17 @@ jobs:
 
     - name: Build Consumer
       run: go build -v ./internal/consumer
-    
-    - name: Generate Sha
-      id: generate_sha
-      run : |
-        SHA=${echo $GITHUB_SHA | head -c7}
-        echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+      - name: Generate Sha
+        id: generate_sha
+        run : |
+          SHA=$(echo $GITHUB_SHA | head -c7)
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
     
     - name: Build docker image from publisher
       run: docker build -t lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} .
