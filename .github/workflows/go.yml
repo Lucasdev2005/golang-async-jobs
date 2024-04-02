@@ -51,7 +51,7 @@ jobs:
       run: | 
         docker push lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}}
         docker tag lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} lucssdev2005/publisher:latest
-        docker push lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} lucssdev2005/publisher:latest
+        docker push lucssdev2005/publisher:latest
 
     - name: Publish docker image from 'consumer'
       run: | 
