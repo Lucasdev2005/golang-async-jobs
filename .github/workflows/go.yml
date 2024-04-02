@@ -49,3 +49,6 @@ jobs:
 
     - name: Publish docker image from 'publisher'
       run: docker push lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}}
+
+    - name: Publish docker image from 'consumer'
+      run: docker push lucssdev2005/consumer:${{steps.generate_sha.outputs.sha}}
