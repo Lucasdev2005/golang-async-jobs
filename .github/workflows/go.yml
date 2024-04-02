@@ -37,7 +37,7 @@ jobs:
         echo "sha=$SHA" >> $GITHUB_OUTPUT
     
     - name: Build docker image from publisher
-      run: docker build -t lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} .
+      run: docker build --build-arg PATH_DIR=publisher -t lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} .
     
     - name: Build docker image from consumer
-      run: docker build -t lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} .
+      run: docker build --build-arg PATH_DIR=consumer -t lucssdev2005/publisher:${{steps.generate_sha.outputs.sha}} .
